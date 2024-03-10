@@ -178,14 +178,15 @@ public class AuthController {
         String response = service.forgotPass(email);
 
         if(!response.startsWith("Invalid")){
-            response= "http://localhost:8080/reset-password?token=" + response;
+            //This will be Email - SMPTP Configuration
+            response= "http://localhost:8080/api/auth/reset-password?token=" + response;
         }
         return response;
     }
 
     @PutMapping("/reset-password")
     public String resetPass(@RequestParam String token, @RequestParam String password){
-        return service.resetPass(token,password);
+        return service.resetPass(token,encoder.encode(password));
     }
 
 }
