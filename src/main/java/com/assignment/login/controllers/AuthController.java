@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.assignment.login.security.services.ForgotPasswordService;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.assignment.login.models.ERole;
 import com.assignment.login.models.Role;
@@ -54,6 +51,9 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    private ForgotPasswordService service;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -171,4 +171,21 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
     }
+
+
+    @PostMapping("/forgot-password")
+    public String forgotPass(@RequestParam String email){
+        String response = service.forgotPass(email);
+
+        if(!response.startsWith("Invalid")){
+            response= "http://localhost:8080/reset-password?token=" + response;
+        }
+        return response;
+    }
+
+    @PutMapping("/reset-password")
+    public String resetPass(@RequestParam String token, @RequestParam String password){
+        return service.resetPass(token,password);
+    }
+
 }
